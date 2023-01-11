@@ -1,0 +1,13 @@
+name: beamsplitter
+version: 0.1.0
+
+authors:
+  - Tyler Bender <tyler.a.bender@gmail.com>
+
+targets:
+  beamsplitter:
+    main: src/beamsplitter.cr
+
+crystal: 1.7.0
+
+license: MIT
