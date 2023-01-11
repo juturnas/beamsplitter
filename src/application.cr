@@ -1,4 +1,5 @@
 require "http/client"
+require "mime/multipart"
 
 require "./proxy"
 
@@ -20,13 +21,24 @@ class Application
   end
 
   def report(roundtrip)
-    req_bytes = roundtrip.request.to_s
-    res_bytes = roundtrip.response.to_s
+    boundary = MIME::Multipart.generate_boundary
+
     headers = HTTP::Headers{
-      "X-Beamsplitter-Request-Length" => req_bytes.bytesize.to_s,
-      "X-Beamsplitter-Session-Id"     => @session_id,
+      "X-Beamsplitter-Session-Id" => @session_id,
+      "Content-Type"              => "multipart/mixed; boundary=" + boundary,
+      "User-Agent"                => "Beamsplitter",
     }
-    body = req_bytes + res_bytes
+
+    body = MIME::Multipart.build(boundary) do |builder|
+      builder.body_part HTTP::Headers{"Content-Type"        => "application/octet-stream",
+                                      "Content-Disposition" => "attachment; name=\"request\"",
+      }, roundtrip.request.to_s
+
+      builder.body_part HTTP::Headers{"Content-Type"        => "application/octet-stream",
+                                      "Content-Disposition" => "attachment; name=\"response\"",
+      }, roundtrip.response.to_s
+    end
+
     HTTP::Client.post(@url, headers: headers, body: body)
   end
 end
