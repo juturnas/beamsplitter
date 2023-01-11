@@ -7,7 +7,7 @@ url : String = ""
 session_id : String = Random.new.base64
 
 begin
-  OptionParser.parse do |parser|
+  parser = OptionParser.parse do |parser|
     parser.banner = "Usage: beamsplitter [-p <port>] [-i <session-id>] -u <url>"
     parser.on("-p", "--port=PORT", "Local port to listen for HTTP/S trafic on") { |p|
       port = p.to_i32
@@ -19,11 +19,11 @@ begin
     parser.on("-i", "--session-id=ID", "A session ID reported via the X-Beamsplitter-Session-Id header") { |id|
       session_id = id
     }
+  end
 
-    if url.size == 0
-      puts parser
-      exit
-    end
+  if url.size == 0
+    puts parser
+    exit
   end
 rescue err
   puts err
