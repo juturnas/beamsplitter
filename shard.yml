@@ -11,3 +11,7 @@ targets:
 crystal: 1.7.0
 
 license: MIT
+
+dependencies:
+  raw_http:
+    github: juturnas/raw_http

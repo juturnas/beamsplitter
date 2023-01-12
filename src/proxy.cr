@@ -1,7 +1,7 @@
 require "socket"
 require "openssl"
 
-require "./raw_http"
+require "raw_http"
 require "./insecure_certs"
 
 # TODO: Add shutdown functionality
@@ -9,10 +9,10 @@ require "./insecure_certs"
 class Proxy
   getter :queue
 
-  @request_transformer : Nil | (RawHttp::Message -> RawHttp::Message)
+  @request_transformer : Nil | (RawHTTP::Message -> RawHTTP::Message)
 
   def initialize(@port : Int32, @request_transformer = nil)
-    @queue = Channel(RawHttp::Roundtrip).new(128)
+    @queue = Channel(RawHTTP::Roundtrip).new(128)
     @listener = TCPServer.new(@port)
     @client_ctx = OpenSSL::SSL::Context::Client.new
     @server_ctx = OpenSSL::SSL::Context::Server.new
@@ -28,14 +28,14 @@ class Proxy
   end
 
   def handle_direct(client, request_header)
-    request_body = RawHttp::Body.read_for_header(client, request_header)
-    request = RawHttp::Message.new(request_header, request_body)
+    request_body = RawHTTP::Body.read_for_header(client, request_header)
+    request = RawHTTP::Message.new(request_header, request_body)
     request = transform_request request
     TCPSocket.open(request.header.host, 80) { |remote|
       request.write(remote)
-      response = RawHttp::Message.read(remote)
+      response = RawHTTP::Message.read(remote)
       response.write(client)
-      @queue.send(RawHttp::Roundtrip.new(request, response))
+      @queue.send(RawHTTP::Roundtrip.new(request, response))
     }
   end
 
@@ -57,13 +57,13 @@ class Proxy
     begin
       host = tunnel_request.value("Host").not_nil!.split ":"
       self.ssl(host[0], host[1].to_i) { |remote|
-        request = RawHttp::Message.read(client_secure)
+        request = RawHTTP::Message.read(client_secure)
         request = transform_request request
         request.write(remote)
         remote.flush
-        response = RawHttp::Message.read(remote)
+        response = RawHTTP::Message.read(remote)
         response.write(client_secure)
-        @queue.send(RawHttp::Roundtrip.new(request, response))
+        @queue.send(RawHTTP::Roundtrip.new(request, response))
       }
     ensure
       client_secure.flush
@@ -72,7 +72,7 @@ class Proxy
   end
 
   def handle_client(client)
-    request_header = RawHttp::Header.read(client)
+    request_header = RawHTTP::Header.read(client)
     if request_header.method == "CONNECT"
       self.handle_tunnel(client, request_header)
     else

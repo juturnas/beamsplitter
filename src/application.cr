@@ -31,11 +31,11 @@ class Application
 
     body = MIME::Multipart.build(boundary) do |builder|
       builder.body_part HTTP::Headers{"Content-Type"        => "application/octet-stream",
-                                      "Content-Disposition" => "attachment; name=\"request\"",
+                                      "Content-Disposition" => "form-data; name=\"request\"",
       }, roundtrip.request.to_s
 
       builder.body_part HTTP::Headers{"Content-Type"        => "application/octet-stream",
-                                      "Content-Disposition" => "attachment; name=\"response\"",
+                                      "Content-Disposition" => "form-data; name=\"response\"",
       }, roundtrip.response.to_s
     end
 

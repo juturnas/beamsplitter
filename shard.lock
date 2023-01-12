@@ -1,0 +1,6 @@
+version: 2.0
+shards:
+  raw_http:
+    git: https://github.com/juturnas/raw_http.git
+    version: 0.1.1+git.commit.af25f7e98a7156005ff863ade319d36d1d5de1b4
+
